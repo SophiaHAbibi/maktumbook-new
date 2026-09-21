@@ -1,0 +1,15 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { AdminShell } from "@/components/AdminShell";
+import { approveRequest, backendConfigured, listRequests, type PurchaseRequest } from "@/lib/backend";
+import { Check, Clock, Send, X } from "lucide-react";
+import { useEffect,useState } from "react";
+export const Route=createFileRoute("/admin/access")({head:()=>({meta:[{title:"درخواست‌های خرید — پنل مدیریت"}]}),component:AccessMgmt});
+function AccessMgmt(){
+ const [items,setItems]=useState<PurchaseRequest[]>([]),[busy,setBusy]=useState(""),[error,setError]=useState("");
+ const load=()=>listRequests().then(setItems).catch(e=>setError(e.message)); useEffect(load,[]);
+ const approve=async(item:PurchaseRequest)=>{setBusy(item.id);try{await approveRequest(item);await load();}catch(e){setError(e instanceof Error?e.message:"تأیید انجام نشد");}finally{setBusy("");}};
+ return <AdminShell><div className="p-8 space-y-6"><header><p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">فروش و دسترسی</p><h1 className="mt-2 font-display text-3xl font-semibold">درخواست‌های خرید</h1><p className="mt-2 text-muted-foreground">پس از بررسی پرداخت در تلگرام، دسترسی کتاب را با یک کلیک فعال کنید.</p></header>
+ {!backendConfigured&&<div className="rounded-xl border border-gold/40 bg-gold/10 p-4 text-sm">پس از اتصال Supabase، درخواست‌های واقعی کاربران اینجا نمایش داده می‌شوند.</div>}{error&&<p className="rounded-xl bg-destructive/10 p-3 text-destructive">{error}</p>}
+ <div className="overflow-x-auto rounded-2xl border border-border/70 bg-card"><table className="w-full text-sm"><thead className="bg-muted/60"><tr><th className="px-5 py-3 text-start">کاربر</th><th className="px-5 py-3 text-start">کتاب</th><th className="px-5 py-3 text-start">کد/توضیح رسید</th><th className="px-5 py-3">وضعیت</th><th className="px-5 py-3 text-end">عملیات</th></tr></thead><tbody className="divide-y divide-border/60">{items.map(i=><tr key={i.id}><td className="px-5 py-4"><b>{i.profiles?.name||"کاربر"}</b><small className="block text-muted-foreground">{i.profiles?.email}</small></td><td className="px-5 py-4">{i.books?.title}</td><td className="px-5 py-4">{i.receipt_reference||"—"}</td><td className="px-5 py-4 text-center">{i.status==="approved"?<span className="inline-flex gap-1 text-primary"><Check className="h-4 w-4"/>تأیید</span>:i.status==="rejected"?<span className="inline-flex gap-1 text-destructive"><X className="h-4 w-4"/>ردشده</span>:<span className="inline-flex gap-1 text-gold"><Clock className="h-4 w-4"/>در انتظار</span>}</td><td className="px-5 py-4 text-end">{i.status==="pending"&&<button disabled={busy===i.id} onClick={()=>approve(i)} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-primary-foreground"><Send className="h-4 w-4"/>{busy===i.id?"در حال ثبت…":"تأیید و اعطای دسترسی"}</button>}</td></tr>)}</tbody></table>{!items.length&&<div className="p-14 text-center text-muted-foreground">درخواستی ثبت نشده است.</div>}</div>
+ </div></AdminShell>;
+}
