@@ -22,10 +22,12 @@ jobs:
         id: db
         shell: bash
         run: |
-          DB_ID=$(wrangler d1 list --json | jq -r '.[] | select(.name=="maktumbook-db") | .uuid' | head -1)
-          if [ -z "$DB_ID" ]; then
-            DB_ID=$(wrangler d1 create maktumbook-db --json | jq -r '.d1_databases[0].uuid // .uuid')
+          API="https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/d1/database"
+          DB_ID=$(curl -fsS -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" "$API" | jq -r '.result[] | select(.name=="maktumbook-db") | .uuid' | head -1)
+          if [ -z "$DB_ID" ] || [ "$DB_ID" = "null" ]; then
+            DB_ID=$(curl -fsS -X POST -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json" --data '{"name":"maktumbook-db"}' "$API" | jq -r '.result.uuid')
           fi
+          test -n "$DB_ID" && test "$DB_ID" != "null"
           echo "db_id=$DB_ID" >> "$GITHUB_OUTPUT"
       - name: Generate config
         run: sed "s/generated-by-github-actions/${{ steps.db.outputs.db_id }}/" worker/wrangler.toml.example > worker/wrangler.toml
