@@ -1,0 +1,13 @@
+name = "maktumbook-api-local"
+main = "index.ts"
+compatibility_date = "2026-09-21"
+
+[vars]
+ADMIN_EMAIL = "smoke-admin@example.com"
+JWT_SECRET = "local-smoke-test-secret-only"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "maktumbook-db-local"
+database_id = "00000000-0000-0000-0000-000000000000"
+
