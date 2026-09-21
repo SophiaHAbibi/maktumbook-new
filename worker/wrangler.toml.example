@@ -1,0 +1,9 @@
+name = "maktumbook-api"
+main = "index.ts"
+compatibility_date = "2026-09-01"
+[vars]
+ADMIN_EMAIL = "nil.hab25@gmail.com"
+[[d1_databases]]
+binding = "DB"
+database_name = "maktumbook-db"
+database_id = "generated-by-github-actions"
