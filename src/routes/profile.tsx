@@ -4,10 +4,11 @@ import { BookCard } from "@/components/BookCard";
 import { ProgressBar } from "@/components/ProgressBar";
 import { currentUser, getAssignedBooks } from "@/lib/mock-data";
 import { Mail, User as UserIcon, Bell, Moon, Type } from "lucide-react";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "پروفایل — مکتوم‌بوک" }] }),
-  component: Profile,
+  component: () => <ProtectedRoute><Profile /></ProtectedRoute>,
 });
 
 function Profile() {

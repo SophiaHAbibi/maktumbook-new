@@ -6,10 +6,11 @@ import type { Book } from "@/lib/mock-data";
 import { myBooks } from "@/lib/backend";
 import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export const Route = createFileRoute("/books")({
   head: () => ({ meta: [{ title: "کتاب‌های من — مکتوم‌بوک" }] }),
-  component: MyBooks,
+  component: () => <ProtectedRoute><MyBooks /></ProtectedRoute>,
 });
 
 function MyBooks() {

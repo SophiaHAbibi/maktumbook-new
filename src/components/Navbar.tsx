@@ -2,9 +2,10 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Logo } from "./Logo";
 import { LogIn, LayoutDashboard, Library, User, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { getSession } from "@/lib/backend";
 
-const nav = [
-  { to: "/", label: "خانه" },
+const publicNav = [{ to: "/", label: "خانه" }] as const;
+const privateNav = [
   { to: "/books", label: "کتاب‌های من", icon: Library },
   { to: "/dashboard", label: "داشبورد", icon: LayoutDashboard },
   { to: "/profile", label: "پروفایل", icon: User },
@@ -13,6 +14,8 @@ const nav = [
 export function Navbar() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
+  const authenticated = Boolean(getSession());
+  const nav = authenticated ? [...publicNav, ...privateNav] : publicNav;
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">

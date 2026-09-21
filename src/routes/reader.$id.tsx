@@ -13,9 +13,10 @@ import {
   ArrowLeft,
   Type,
 } from "lucide-react";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export const Route = createFileRoute("/reader/$id")({
-  component: Reader,
+  component: () => <ProtectedRoute><Reader /></ProtectedRoute>,
 });
 
 const STORAGE_PREFIX = "maktumbook:last-page:";

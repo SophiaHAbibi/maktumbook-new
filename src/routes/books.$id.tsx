@@ -25,9 +25,9 @@ function BookDetails() {
       <SiteShell>
         <div className="mx-auto max-w-3xl px-4 py-24 text-center">
           <h1 className="font-display text-3xl font-semibold text-foreground">کتاب یافت نشد</h1>
-          <p className="mt-3 text-muted-foreground">این کتاب در کتابخانه شما موجود نیست.</p>
-          <Link to="/books" className="mt-6 inline-flex items-center gap-2 text-primary">
-            <ArrowLeft className="h-4 w-4" /> بازگشت به کتاب‌های من
+          <p className="mt-3 text-muted-foreground">اطلاعات این کتاب موجود نیست.</p>
+          <Link to="/" className="mt-6 inline-flex items-center gap-2 text-primary">
+            <ArrowLeft className="h-4 w-4" /> بازگشت به صفحه اصلی
           </Link>
         </div>
       </SiteShell>
@@ -38,11 +38,11 @@ function BookDetails() {
     <SiteShell>
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12">
         <Link
-          to="/books"
+          to="/"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-8"
         >
           <ArrowLeft className="h-4 w-4" />
-          کتاب‌های من
+          بازگشت به کتاب‌ها
         </Link>
 
         <div className="grid gap-10 lg:grid-cols-[280px_1fr]">
@@ -55,7 +55,7 @@ function BookDetails() {
             >
               <BookOpen className="h-4 w-4" />
               {book.progress && book.progress > 0 ? "ادامه مطالعه" : "شروع مطالعه"}
-            </Link> : <div className="mt-6 rounded-xl border border-border bg-card p-4"><p className="text-sm font-medium">خرید و فعال‌سازی کتاب</p><p className="mt-1 text-xs text-muted-foreground">ابتدا در تلگرام پیام بدهید و پس از پرداخت، کد یا توضیح رسید را اینجا ثبت کنید.</p><a href={telegramPurchaseUrl(book)} target="_blank" rel="noreferrer" className="mt-3 inline-flex w-full justify-center rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground">ادامه خرید در تلگرام</a><input value={receipt} onChange={e=>setReceipt(e.target.value)} placeholder="کد پیگیری یا توضیح رسید" className="mt-3 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"/><button onClick={async()=>{setError("");if(!getSession()){setError("برای ثبت درخواست ابتدا وارد شوید.");return;}try{await createPurchaseRequest(book.id,receipt);setSent(true);}catch(e){setError(e instanceof Error?e.message:"ثبت نشد");}}} className="mt-2 w-full rounded-xl border border-primary px-5 py-2 text-sm text-primary">{sent?"درخواست ثبت شد ✓":"ثبت درخواست خرید"}</button>{error&&<p className="mt-2 text-xs text-destructive">{error}</p>}</div>}
+            </Link> : <div className="mt-6 rounded-xl border border-border bg-card p-4"><p className="text-sm font-medium">خرید و فعال‌سازی کتاب</p><p className="mt-1 text-xs text-muted-foreground">برای هماهنگی پرداخت به تلگرام @n0rdi64 پیام بدهید. سپس وارد حساب شوید و مشخصات رسید را ثبت کنید.</p><a href={telegramPurchaseUrl(book)} target="_blank" rel="noreferrer" className="mt-3 inline-flex w-full justify-center rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground">سفارش و پرداخت در تلگرام</a><input value={receipt} onChange={e=>setReceipt(e.target.value)} placeholder="کد پیگیری یا توضیح رسید" className="mt-3 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"/><button onClick={async()=>{setError("");if(!getSession()){setError("برای ثبت درخواست ابتدا وارد شوید.");return;}try{await createPurchaseRequest(book.id,receipt);setSent(true);}catch(e){setError(e instanceof Error?e.message:"ثبت نشد");}}} className="mt-2 w-full rounded-xl border border-primary px-5 py-2 text-sm text-primary">{sent?"درخواست ثبت شد ✓":"ثبت درخواست خرید"}</button>{!getSession()&&<Link to="/login" className="mt-3 block text-center text-xs text-primary hover:underline">برای ثبت درخواست وارد شوید</Link>}{error&&<p className="mt-2 text-xs text-destructive">{error}</p>}</div>}
             {book.progress && book.progress > 0 && (
               <div className="mt-4 space-y-1.5">
                 <ProgressBar value={book.progress} />

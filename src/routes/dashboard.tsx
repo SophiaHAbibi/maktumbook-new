@@ -5,10 +5,11 @@ import { StatsCard } from "@/components/StatsCard";
 import { EmptyState } from "@/components/EmptyState";
 import { currentUser, getAssignedBooks } from "@/lib/mock-data";
 import { BookOpen, Clock, Library, TrendingUp, ArrowLeft } from "lucide-react";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "داشبورد — مکتوم‌بوک" }] }),
-  component: Dashboard,
+  component: () => <ProtectedRoute><Dashboard /></ProtectedRoute>,
 });
 
 function Dashboard() {
