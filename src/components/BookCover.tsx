@@ -13,7 +13,7 @@ const sizes = {
 };
 
 export function BookCover({ book, className = "", size = "md" }: Props) {
-  const [c1, c2] = book.coverPalette;
+  const [c1, c2] = book.coverPalette ?? ["#1f3a2e", "#0f2419"];
   return (
     <div
       className={`relative overflow-hidden rounded-lg no-select ${sizes[size]} ${className}`}

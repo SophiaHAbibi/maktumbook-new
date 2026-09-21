@@ -1,4 +1,5 @@
 import { Logo } from "./Logo";
+import { Link } from "@tanstack/react-router";
 
 export function Footer() {
   return (
@@ -22,10 +23,10 @@ export function Footer() {
           <div>
             <h4 className="font-display text-sm font-semibold text-foreground mb-3">دسترسی سریع</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>خانه</li>
-              <li>کتاب‌های من</li>
-              <li>داشبورد</li>
-              <li>پروفایل کاربری</li>
+              <li><Link to="/" className="hover:text-primary transition-colors">خانه</Link></li>
+              <li><Link to="/books" className="hover:text-primary transition-colors">کتاب‌های من</Link></li>
+              <li><Link to="/dashboard" className="hover:text-primary transition-colors">داشبورد</Link></li>
+              <li><Link to="/profile" className="hover:text-primary transition-colors">پروفایل کاربری</Link></li>
             </ul>
           </div>
 

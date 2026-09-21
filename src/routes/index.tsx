@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteShell } from "@/components/SiteShell";
 import { BookCard } from "@/components/BookCard";
-import { mockBooks, type Book } from "@/lib/mock-data";
+import type { Book } from "@/lib/mock-data";
 import { listBooks } from "@/lib/backend";
 import { useEffect, useState } from "react";
 import { BookOpen, Lock, Sparkles, ArrowLeft, Feather } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,8 +22,8 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const [books,setBooks]=useState<Book[]>(mockBooks);
-  useEffect(()=>{listBooks().then(setBooks).catch(()=>{});},[]);
+  const [books,setBooks]=useState<Book[]>([]);
+  useEffect(()=>{listBooks().then(setBooks).catch(()=>setBooks([]));},[]);
   const featured = books.slice(0, 4);
   const latest = books.slice(3, 8);
 
@@ -87,17 +88,11 @@ function Home() {
             </div>
 
             {/* Hero visual: layered book covers */}
-            <div className="relative h-[440px] hidden lg:block">
-              <div className="absolute right-0 top-4 w-52 rotate-[6deg]">
-                <BookCard book={books[2]||mockBooks[2]} showProgress={false} />
-              </div>
-              <div className="absolute right-40 top-20 w-56 -rotate-3 z-10">
-                <BookCard book={books[0]||mockBooks[0]} showProgress={false} />
-              </div>
-              <div className="absolute right-[22rem] top-8 w-48 rotate-[4deg]">
-                <BookCard book={books[4]||mockBooks[4]} showProgress={false} />
-              </div>
-            </div>
+            {books.length > 0 && <div className="relative h-[440px] hidden lg:block">
+              {books[2] && <div className="absolute right-0 top-4 w-52 rotate-[6deg]"><BookCard book={books[2]} showProgress={false} /></div>}
+              {books[0] && <div className="absolute right-40 top-20 w-56 -rotate-3 z-10"><BookCard book={books[0]} showProgress={false} /></div>}
+              {books[4] && <div className="absolute right-[22rem] top-8 w-48 rotate-[4deg]"><BookCard book={books[4]} showProgress={false} /></div>}
+            </div>}
           </div>
         </div>
       </section>
@@ -105,22 +100,22 @@ function Home() {
       {/* Featured */}
       <SectionHeader title="کتاب‌های برگزیده" subtitle="Featured Books" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+        {featured.length === 0 ? <EmptyState title="هنوز کتابی منتشر نشده است" description="کتاب‌های جدید پس از انتشار توسط مدیر در این بخش نمایش داده می‌شوند." /> : <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {featured.map((b) => (
             <BookCard key={b.id} book={b} showProgress={false} />
           ))}
-        </div>
+        </div>}
       </div>
 
       {/* Latest */}
-      <SectionHeader title="تازه‌های کتابخانه" subtitle="Latest Additions" className="mt-24" />
+      {latest.length > 0 && <><SectionHeader title="تازه‌های کتابخانه" subtitle="Latest Additions" className="mt-24" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5">
           {latest.map((b) => (
             <BookCard key={b.id} book={b} showProgress={false} />
           ))}
         </div>
-      </div>
+      </div></>}
 
       {/* About */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-24">

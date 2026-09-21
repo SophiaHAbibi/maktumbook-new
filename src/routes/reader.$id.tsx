@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { getBookById, type Book } from "@/lib/mock-data";
+import type { Book } from "@/lib/mock-data";
 import { bookPages, getSession, listBooks, userHasBook } from "@/lib/backend";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -23,10 +23,10 @@ const STORAGE_PREFIX = "maktumbook:last-page:";
 
 function Reader() {
   const { id } = useParams({ from: "/reader/$id" });
-  const [book,setBook]=useState<Book|undefined>(()=>getBookById(id));
+  const [book,setBook]=useState<Book|undefined>();
   const [pages,setPages]=useState<string[]>([]);
   const [allowed,setAllowed]=useState<boolean|null>(null);
-  useEffect(()=>{listBooks().then(rows=>setBook(rows.find(b=>b.id===id)||getBookById(id)));if(!getSession()){setAllowed(false);return;}userHasBook(id).then(ok=>{setAllowed(ok);if(ok)bookPages(id).then(setPages);}).catch(()=>setAllowed(false));},[id]);
+  useEffect(()=>{listBooks().then(rows=>setBook(rows.find(b=>b.id===id)));if(!getSession()){setAllowed(false);return;}userHasBook(id).then(ok=>{setAllowed(ok);if(ok)bookPages(id).then(setPages);}).catch(()=>setAllowed(false));},[id]);
 
   const total = pages.length || book?.pageCount || 1;
   const [page, setPage] = useState(1);

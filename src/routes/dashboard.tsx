@@ -3,9 +3,11 @@ import { SiteShell } from "@/components/SiteShell";
 import { BookCard } from "@/components/BookCard";
 import { StatsCard } from "@/components/StatsCard";
 import { EmptyState } from "@/components/EmptyState";
-import { currentUser, getAssignedBooks } from "@/lib/mock-data";
+import type { Book, User } from "@/lib/mock-data";
 import { BookOpen, Clock, Library, TrendingUp, ArrowLeft } from "lucide-react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { currentProfile, myBooks } from "@/lib/backend";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "داشبورد — مکتوم‌بوک" }] }),
@@ -13,7 +15,14 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function Dashboard() {
-  const books = getAssignedBooks(currentUser.id);
+  const [books, setBooks] = useState<Book[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  useEffect(() => {
+    Promise.all([myBooks(), currentProfile()]).then(([assigned, profile]) => {
+      setBooks(assigned);
+      setUser(profile);
+    }).catch(() => { setBooks([]); setUser(null); });
+  }, []);
   const reading = books.filter((b) => b.progress && b.progress > 0 && b.progress < 100);
   const finished = books.filter((b) => b.progress === 100);
   const recent = [...books]
@@ -35,7 +44,7 @@ function Dashboard() {
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">داشبورد</p>
             <h1 className="mt-2 font-display text-4xl font-semibold text-foreground">
-              خوش آمدید، {currentUser.name.split(" ")[0]}
+              خوش آمدید{user?.name ? `، ${user.name.split(" ")[0]}` : ""}
             </h1>
             <p className="mt-2 text-muted-foreground">
               ادامه بدهید از جایی که رها کرده بودید.

@@ -2,7 +2,7 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { SiteShell } from "@/components/SiteShell";
 import { BookCover } from "@/components/BookCover";
 import { ProgressBar } from "@/components/ProgressBar";
-import { getBookById, type Book } from "@/lib/mock-data";
+import type { Book } from "@/lib/mock-data";
 import { BookOpen, ArrowLeft, Globe, FileText, User as UserIcon } from "lucide-react";
 import { createPurchaseRequest, getSession, listBooks, telegramPurchaseUrl, userHasBook } from "@/lib/backend";
 import { useEffect, useState } from "react";
@@ -13,12 +13,12 @@ export const Route = createFileRoute("/books/$id")({
 
 function BookDetails() {
   const { id } = useParams({ from: "/books/$id" });
-  const [book,setBook]=useState<Book|undefined>(()=>getBookById(id));
+  const [book,setBook]=useState<Book|undefined>();
   const [entitled,setEntitled]=useState(false);
   const [receipt,setReceipt]=useState("");
   const [sent,setSent]=useState(false);
   const [error,setError]=useState("");
-  useEffect(()=>{listBooks().then(rows=>setBook(rows.find(b=>b.id===id)||getBookById(id)));userHasBook(id).then(setEntitled).catch(()=>setEntitled(false));},[id]);
+  useEffect(()=>{listBooks().then(rows=>setBook(rows.find(b=>b.id===id)));userHasBook(id).then(setEntitled).catch(()=>setEntitled(false));},[id]);
 
   if (!book) {
     return (

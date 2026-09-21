@@ -1,8 +1,8 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Logo } from "./Logo";
-import { LogIn, LayoutDashboard, Library, User, Menu, X } from "lucide-react";
+import { LogIn, LogOut, LayoutDashboard, Library, User, Menu, X } from "lucide-react";
 import { useState } from "react";
-import { getSession } from "@/lib/backend";
+import { clearSession, getSession } from "@/lib/backend";
 
 const publicNav = [{ to: "/", label: "خانه" }] as const;
 const privateNav = [
@@ -14,8 +14,15 @@ const privateNav = [
 export function Navbar() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
-  const authenticated = Boolean(getSession());
-  const nav = authenticated ? [...publicNav, ...privateNav] : publicNav;
+  const [authenticated, setAuthenticated] = useState(() => Boolean(getSession()));
+  const navigate = useNavigate();
+  const nav = authenticated ? [...publicNav, ...privateNav] : [];
+  const logout = () => {
+    clearSession();
+    setAuthenticated(false);
+    setOpen(false);
+    void navigate({ to: "/", replace: true });
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
@@ -50,13 +57,15 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link
-            to="/login"
-            className="hidden sm:inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-secondary transition-colors"
-          >
-            <LogIn className="h-4 w-4" />
-            ورود
-          </Link>
+          {authenticated ? (
+            <button onClick={logout} className="hidden sm:inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-secondary transition-colors">
+              <LogOut className="h-4 w-4" /> خروج
+            </button>
+          ) : (
+            <Link to="/login" className="hidden sm:inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-secondary transition-colors">
+              <LogIn className="h-4 w-4" /> ورود
+            </Link>
+          )}
           <button
             className="md:hidden rounded-lg p-2 hover:bg-secondary"
             onClick={() => setOpen((o) => !o)}
@@ -80,13 +89,11 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              to="/login"
-              onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-primary"
-            >
-              ورود
-            </Link>
+            {authenticated ? (
+              <button onClick={logout} className="rounded-lg px-3 py-2 text-start text-sm font-medium text-primary">خروج</button>
+            ) : (
+              <Link to="/login" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium text-primary">ورود</Link>
+            )}
           </nav>
         </div>
       )}

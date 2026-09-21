@@ -2,9 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/SiteShell";
 import { BookCard } from "@/components/BookCard";
 import { ProgressBar } from "@/components/ProgressBar";
-import { currentUser, getAssignedBooks } from "@/lib/mock-data";
-import { Mail, User as UserIcon, Bell, Moon, Type } from "lucide-react";
+import type { Book, User } from "@/lib/mock-data";
+import { Mail, User as UserIcon } from "lucide-react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { currentProfile, getSession, myBooks } from "@/lib/backend";
+import { useEffect, useState } from "react";
+import { EmptyState } from "@/components/EmptyState";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "پروفایل — مکتوم‌بوک" }] }),
@@ -12,8 +15,17 @@ export const Route = createFileRoute("/profile")({
 });
 
 function Profile() {
-  const books = getAssignedBooks(currentUser.id);
-  const initials = currentUser.name
+  const [books, setBooks] = useState<Book[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  useEffect(() => {
+    Promise.all([myBooks(), currentProfile()]).then(([assigned, profile]) => {
+      setBooks(assigned);
+      setUser(profile);
+    }).catch(() => { setBooks([]); setUser(null); });
+  }, []);
+  const name = user?.name || "کاربر مکتوم‌بوک";
+  const email = user?.email || getSession()?.user.email || "";
+  const initials = name
     .split(" ")
     .map((s) => s[0])
     .join("")
@@ -35,16 +47,16 @@ function Profile() {
                 {initials}
               </div>
               <h2 className="mt-4 font-display text-2xl font-semibold text-foreground">
-                {currentUser.name}
+                {name}
               </h2>
-              <p className="mt-1 text-sm text-muted-foreground">{currentUser.email}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{email}</p>
               <span className="mt-3 inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
                 عضو مکتوم‌بوک
               </span>
             </div>
             <div className="mt-6 space-y-3 text-sm">
-              <Row icon={<UserIcon className="h-4 w-4" />} label="نام" value={currentUser.name} />
-              <Row icon={<Mail className="h-4 w-4" />} label="ایمیل" value={currentUser.email} />
+              <Row icon={<UserIcon className="h-4 w-4" />} label="نام" value={name} />
+              <Row icon={<Mail className="h-4 w-4" />} label="ایمیل" value={email} />
             </div>
           </div>
 
@@ -55,14 +67,14 @@ function Profile() {
               <h3 className="font-display text-xl font-semibold text-foreground mb-5">
                 پیشرفت مطالعه
               </h3>
-              <div className="space-y-4">
+              {books.length === 0 ? <EmptyState title="هنوز مطالعه‌ای ندارید" description="پس از خرید و تأیید کتاب، پیشرفت مطالعه اینجا نمایش داده می‌شود." /> : <div className="space-y-4">
                 {books.map((b) => (
                   <div key={b.id} className="flex items-center gap-4">
                     <div className="w-10">
                       <div
                         className="aspect-[2/3] rounded"
                         style={{
-                          background: `linear-gradient(135deg, ${b.coverPalette[0]}, ${b.coverPalette[1]})`,
+                          background: `linear-gradient(135deg, ${(b.coverPalette ?? ["#1f3a2e"])[0]}, ${(b.coverPalette ?? ["#1f3a2e", "#0f2419"])[1]})`,
                         }}
                       />
                     </div>
@@ -77,7 +89,7 @@ function Profile() {
                     </span>
                   </div>
                 ))}
-              </div>
+              </div>}
             </section>
 
             {/* Assigned books */}
@@ -85,21 +97,11 @@ function Profile() {
               <h3 className="font-display text-xl font-semibold text-foreground mb-5">
                 کتاب‌های اختصاص‌یافته
               </h3>
-              <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4">
+              {books.length === 0 ? <EmptyState description="هنوز کتابی به حساب شما اختصاص داده نشده است." /> : <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4">
                 {books.slice(0, 4).map((b) => (
                   <BookCard key={b.id} book={b} showProgress={false} />
                 ))}
-              </div>
-            </section>
-
-            {/* Settings */}
-            <section className="rounded-3xl border border-border/70 bg-card p-8">
-              <h3 className="font-display text-xl font-semibold text-foreground mb-5">تنظیمات</h3>
-              <div className="divide-y divide-border/70">
-                <SettingRow icon={<Bell className="h-4 w-4" />} label="اطلاع‌رسانی کتاب جدید" />
-                <SettingRow icon={<Moon className="h-4 w-4" />} label="حالت شب در خواندن" />
-                <SettingRow icon={<Type className="h-4 w-4" />} label="اندازه فونت پیش‌فرض" />
-              </div>
+              </div>}
             </section>
           </div>
         </div>
@@ -116,20 +118,6 @@ function Row({ icon, label, value }: { icon: React.ReactNode; label: string; val
         {label}
       </span>
       <span className="font-medium text-foreground">{value}</span>
-    </div>
-  );
-}
-
-function SettingRow({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <div className="flex items-center justify-between py-4">
-      <span className="flex items-center gap-3 text-sm text-foreground">
-        <span className="text-primary">{icon}</span>
-        {label}
-      </span>
-      <button className="relative h-6 w-11 rounded-full bg-secondary transition-colors">
-        <span className="absolute end-0.5 top-0.5 h-5 w-5 rounded-full bg-card shadow" />
-      </button>
     </div>
   );
 }
