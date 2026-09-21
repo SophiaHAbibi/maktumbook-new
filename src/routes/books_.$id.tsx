@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteShell } from "@/components/SiteShell";
 import { BookCover } from "@/components/BookCover";
 import { ProgressBar } from "@/components/ProgressBar";
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/books_/$id")({
 });
 
 function BookDetails() {
-  const { id } = useParams({ from: "/books/$id" });
+  const { id } = Route.useParams();
   const [book,setBook]=useState<Book|undefined>();
   const [loading,setLoading]=useState(true);
   const [entitled,setEntitled]=useState(false);
